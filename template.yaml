@@ -1,0 +1,56 @@
+
+AWSTemplateFormatVersion : '2010-09-09'
+Transform:
+  - AWS::Serverless-2016-10-31
+
+Description: husky shelters web app
+Resources:
+  GetPets:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: getPets
+      Handler: pets.getPets
+      Runtime: python3.8
+      CodeUri: package/
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref PetsTable
+      Environment:
+        Variables:
+          PETS_TABLE: !Ref PetsTable
+      Events:
+        GetUsers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyAPI
+            Path: "/pets"
+            Method: GET
+  
+  MyAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: husky-shelters-web-app-api
+      StageName: prod
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: swagger.yaml
+
+  PetsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: husky-shelters-web-app
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
