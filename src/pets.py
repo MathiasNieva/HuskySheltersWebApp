@@ -11,19 +11,15 @@ def getPets(event, context):
     print(json.dumps({"running": True}))
     print(json.dumps(event))
     
-    path = event["path"] # "/user/123"
-    array_path = path.split("/") # ["", "user", "123"]
-    user_id = array_path[-1]
+    response = table.scan()
     
-    response = table.get_item(
-        Key={
-            'pk': user_id,
-            'sk': 'age'
-        }
-    )
-    item = response['Item']
-    print(item)
+    items = response['Items']
+    print(items)
     return {
         'statusCode': 200,
-        'body': json.dumps(item)
+        'headers': {
+            "Access-Control-Allow-Origin" : "*", # Required for CORS support to work
+            "Access-Control-Allow-Credentials" : True # Required for cookies, authorization headers with HTTPS 
+         },
+        'body': json.dumps(items)
     }

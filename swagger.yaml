@@ -1,7 +1,7 @@
 openapi: 3.0.0
 
 paths:
-  /pets:
+  /:
     get:
       summary: This endpoint returns the list of pets
       x-amazon-apigateway-integration:
